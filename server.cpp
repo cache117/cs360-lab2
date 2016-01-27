@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     Address.sin_port = htons(nHostPort);
     Address.sin_family = AF_INET;
 
-    printf("\nBinding to port %d", nHostPort);
+    printf("\nBinding to port %d\n", nHostPort);
 
     /* bind to a port */
     if (bind(hServerSocket, (struct sockaddr *) &Address, sizeof(Address))
@@ -90,17 +90,14 @@ int main(int argc, char *argv[])
     {
         printf("\nWaiting for a connection\n");
         /* get the connected socket */
-        hSocket = accept(hServerSocket, (struct sockaddr *) &Address, (socklen_t * ) & nAddressSize);
+        hSocket = accept(hServerSocket, (struct sockaddr *) &Address, (socklen_t * ) &nAddressSize);
 
         printf("\nGot a connection from %X (%d)\n", Address.sin_addr.s_addr, ntohs(Address.sin_port));
         memset(pBuffer, 0, sizeof(pBuffer));
         int bytesRead = read(hSocket, pBuffer, BUFFER_SIZE);
         printf("got from browser %d\n%s\n", bytesRead, pBuffer);
 //        char requestedFile[NAME_SIZE];
-//        if (strstr(pBuffer, "GET"))
-//        {
-//            sscanf(pBuffer, "GET %s", requestedFile);
-//        }
+//        sscanf(pBuffer, "GET %s HTTP/1.1", requestedFile);
 //        strcat(filePath, requestedFile);
         /* analyse given directory */
 
