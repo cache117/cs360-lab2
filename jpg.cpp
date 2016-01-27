@@ -6,15 +6,11 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 
 #define SOCKET_ERROR        -1
-#define BUFFER_SIZE         1000
+#define BUFFER_SIZE         10000
+#define MESSAGE             "This is the message I'm sending back and forth"
 #define QUEUE_SIZE          5
-#define NAME_SIZE           255
-#define CONTENT_TYPE_SIZE   10
-#define HTTP_OK             "HTTP/1.1 200 OK"
-#define CONTENT_TYPE        "Content-Type:"
 
 int main(int argc, char *argv[])
 {
@@ -24,22 +20,18 @@ int main(int argc, char *argv[])
     int nAddressSize = sizeof(struct sockaddr_in);
     char pBuffer[BUFFER_SIZE];
     int nHostPort;
-    char startingDirectory[NAME_SIZE];
-    char filePath[NAME_SIZE];
 
     if (argc < 3)
     {
-        printf("\nUsage: server host-port startingDirectory\n");
+        printf("\nUsage: server host-port dir\n");
         return 0;
     }
     else
     {
         nHostPort = atoi(argv[1]);
-        strcpy(startingDirectory, argv[2]);
-        strcpy(filePath, startingDirectory);
     }
 
-    printf("\nStarting server on port %d in startingDirectory %s", nHostPort, startingDirectory);
+    printf("\nStarting server");
 
     printf("\nMaking socket");
     /* make a socket */
@@ -56,7 +48,7 @@ int main(int argc, char *argv[])
     Address.sin_port = htons(nHostPort);
     Address.sin_family = AF_INET;
 
-    printf("\nBinding to port %d\n", nHostPort);
+    printf("\nBinding to port %d", nHostPort);
 
     /* bind to a port */
     if (bind(hServerSocket, (struct sockaddr *) &Address, sizeof(Address))
@@ -72,8 +64,9 @@ int main(int argc, char *argv[])
     printf("Server\n\
               sin_family        = %d\n\
               sin_addr.s_addr   = %d\n\
-              sin_port          = %d\n", Address.sin_family, (int) Address.sin_addr.s_addr, ntohs(Address.sin_port)
+              sin_port          = %d\n", Address.sin_family, Address.sin_addr.s_addr, ntohs(Address.sin_port)
     );
+
 
     printf("\nMaking a listen queue of %d elements", QUEUE_SIZE);
     /* establish listen queue */
@@ -83,7 +76,7 @@ int main(int argc, char *argv[])
         return 0;
     }
     int optval = 1;
-    setsockopt(hSocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+    setsockopt(hServerSocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
     for (; ;)
     {
@@ -95,32 +88,37 @@ int main(int argc, char *argv[])
                Address.sin_addr.s_addr,
                ntohs(Address.sin_port));
         memset(pBuffer, 0, sizeof(pBuffer));
-        int bytesRead = read(hSocket, pBuffer, BUFFER_SIZE);
-        printf("Got from browser %d\n%s\n", bytesRead, pBuffer);
-        char requestedFile[NAME_SIZE];
-        sscanf(pBuffer, "GET %s HTTP/1.1", requestedFile);
-        strcat(filePath, requestedFile);
-        /* analyse given directory */
+        int rval = read(hSocket, pBuffer, BUFFER_SIZE);
+        printf("Got from browser %d\n%s\n", rval, pBuffer);
+#define MAXPATH 1000
+        char path[MAXPATH];
+        rval = sscanf(pBuffer, "GET %s HTTP/1.1", path);
+        printf("Got rval %d, path %s\n", rval, path);
+        char fullpath[MAXPATH];
+        sprintf(fullpath, "%s%s", argv[2], path);
+        printf("fullpath %s\n", fullpath);
 
-        struct stat fileStat;
-        char contentType[CONTENT_TYPE_SIZE];
 
-
-        sprintf(pBuffer, "HTTP/1.1 200 OK\r\n"
-                "Content-Type: text/html\n\r\n\r\n"
-                "<html>"
-                "<ul>"
-                "<li> <a>file.html</a></li>"
-                "</ul>"
-                "Hello"
-                "</html>\n");
+        memset(pBuffer, 0, sizeof(pBuffer));
+        sprintf(pBuffer, "HTTP/1.1 200 OK\r\n\
+Content-Type: image/jpg\r\n\
+Content-Length: 51793\
+\r\n\r\n");
         write(hSocket, pBuffer, strlen(pBuffer));
+        FILE *fp = fopen("test4.jpg", "r");
+        char *buffer = (char *) malloc(51793 + 1);
+        fread(buffer, 51793, 1, fp);
+        write(hSocket, buffer, 51793);
+        free(buffer);
+        fclose(fp);
+#ifdef notdef
         linger lin;
-        unsigned int y = sizeof(lin);
-        lin.l_onoff = 1;
-        lin.l_linger = 10;
-        setsockopt(hSocket, SOL_SOCKET, SO_LINGER, &lin, sizeof(lin));
+        unsigned int y=sizeof(lin);
+        lin.l_onoff=1;
+        lin.l_linger=10;
+        setsockopt(hSocket,SOL_SOCKET, SO_LINGER,&lin,sizeof(lin));
         shutdown(hSocket, SHUT_RDWR);
+#endif
         printf("\nClosing the socket");
         /* close socket */
         if (close(hSocket) == SOCKET_ERROR)
