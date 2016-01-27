@@ -9,7 +9,7 @@
 #include "CS360Utils.h"
 
 #define SOCKET_ERROR        -1
-#define BUFFER_SIZE         100
+#define BUFFER_SIZE         1000
 #define QUEUE_SIZE          5
 #define DIRECTORY_NAME_SIZE 255
 
