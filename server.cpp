@@ -105,58 +105,58 @@ int main(int argc, char *argv[])
         /* analyse given directory */
 
         struct stat fileStat;
-        char contentType[CONTENT_TYPE_SIZE];
-        if (stat(filePath, &fileStat) == -1)
-        {
-            printf("ERROR with file: %s\n", filePath);
-            memset(pBuffer, 0, sizeof(pBuffer));
-            sprintf(pBuffer, "HTTP/1.1 404 Not Found\r\n%s text/html\r\n\r\n<html>\""
-                    "<h1>404 Not Found</h1>\""
-                    "The page '%s' could not be found on this server.\n</html>", CONTENT_TYPE, filePath);
-        }
-        if (S_ISREG(fileStat.st_mode))
-        {
-            printf("%s is a regular file \n", filePath);
-            printf("File size: %d\n", (int) fileStat.st_size);
-            FILE *file = fopen(filePath, "r");
-            char *fileBuffer = (char *) malloc((size_t) fileStat.st_size);
-            fread(fileBuffer, (size_t) fileStat.st_size, 1, file);
-            printf("Writing to socket: \n\n%s", fileBuffer);
-            /* Reset buffer */
-            memset(pBuffer, 0, sizeof(pBuffer));
-            char *fileExtension = strrchr(filePath, '.');
-            if (fileExtension == "html")
-                strcpy(contentType, "text/html");
-            else if (fileExtension == "gif")
-                strcpy(contentType, "image/gif");
-            else if (fileExtension == "jpg")
-                strcpy(contentType, "image/jpg");
-            else
-                strcpy(contentType, "text/plain");
-            sprintf(pBuffer, "%s\r\n%s%s\r\n\r\n%s", HTTP_OK, CONTENT_TYPE, contentType, fileBuffer);
-            write(hSocket, pBuffer, strlen(pBuffer));
-
-            /* Free memory, close files */
-            free(fileBuffer);
-            fclose(file);
-        }
-        if (S_ISDIR(fileStat.st_mode))
-        {
-            printf("%s is a directory \n", filePath);
-            DIR *dirp;
-            struct dirent *dp;
-            char *fileListing;
-            memset(fileListing, 0, strlen(fileListing));
-            strcpy(contentType, "text/html");
-            dirp = opendir(filePath);
-            sprintf(fileListing, "<html><h1>File listing:</h1>");
-            while ((dp = readdir(dirp)) != NULL)
-            {
-                sprintf(fileListing, "%s\n<li>%s</li>", fileListing, dp->d_name);
-            }
-            strcat(fileListing, "</html>");
-            (void) closedir(dirp);
-        }
+//        char contentType[CONTENT_TYPE_SIZE];
+//        if (stat(filePath, &fileStat) == -1)
+//        {
+//            printf("ERROR with file: %s\n", filePath);
+//            memset(pBuffer, 0, sizeof(pBuffer));
+//            sprintf(pBuffer, "HTTP/1.1 404 Not Found\r\n%s text/html\r\n\r\n<html>\""
+//                    "<h1>404 Not Found</h1>\""
+//                    "The page '%s' could not be found on this server.\n</html>", CONTENT_TYPE, filePath);
+//        }
+//        if (S_ISREG(fileStat.st_mode))
+//        {
+//            printf("%s is a regular file \n", filePath);
+//            printf("File size: %d\n", (int) fileStat.st_size);
+//            FILE *file = fopen(filePath, "r");
+//            char *fileBuffer = (char *) malloc((size_t) fileStat.st_size);
+//            fread(fileBuffer, (size_t) fileStat.st_size, 1, file);
+//            printf("Writing to socket: \n\n%s", fileBuffer);
+//            /* Reset buffer */
+//            memset(pBuffer, 0, sizeof(pBuffer));
+//            char *fileExtension = strrchr(filePath, '.');
+//            if (fileExtension == "html")
+//                strcpy(contentType, "text/html");
+//            else if (fileExtension == "gif")
+//                strcpy(contentType, "image/gif");
+//            else if (fileExtension == "jpg")
+//                strcpy(contentType, "image/jpg");
+//            else
+//                strcpy(contentType, "text/plain");
+//            sprintf(pBuffer, "%s\r\n%s%s\r\n\r\n%s", HTTP_OK, CONTENT_TYPE, contentType, fileBuffer);
+//            write(hSocket, pBuffer, strlen(pBuffer));
+//
+//            /* Free memory, close files */
+//            free(fileBuffer);
+//            fclose(file);
+//        }
+//        if (S_ISDIR(fileStat.st_mode))
+//        {
+//            printf("%s is a directory \n", filePath);
+//            DIR *dirp;
+//            struct dirent *dp;
+//            char *fileListing;
+//            memset(fileListing, 0, strlen(fileListing));
+//            strcpy(contentType, "text/html");
+//            dirp = opendir(filePath);
+//            sprintf(fileListing, "<html><h1>File listing:</h1>");
+//            while ((dp = readdir(dirp)) != NULL)
+//            {
+//                sprintf(fileListing, "%s\n<li>%s</li>", fileListing, dp->d_name);
+//            }
+//            strcat(fileListing, "</html>");
+//            (void) closedir(dirp);
+//        }
 
         sprintf(pBuffer, "HTTP/1.1 200 OK\r\n"
                 "Content-Type: text/html\n\r\n\r\n"
