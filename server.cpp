@@ -89,8 +89,9 @@ int main(int argc, char *argv[])
 
         printf("\nGot a connection from %X (%d)\n", Address.sin_addr.s_addr, ntohs(Address.sin_port));
         memset(pBuffer, 0, sizeof(pBuffer));
-        int rval = read(hSocket, pBuffer, BUFFER_SIZE);
-        printf("got from browser %d\n%s\n", rval, pBuffer);
+        int bytesRead = read(hSocket, pBuffer, BUFFER_SIZE);
+        printf("got from browser %d\n%s\n", bytesRead, pBuffer);
+
         sprintf(pBuffer, "HTTP/1.1 200 OK\r\n\
 Content-Type: text/html\
 \n\r\n\r\n\
@@ -114,4 +115,15 @@ Hello</html>\n");
             return 0;
         }
     }
+}
+
+char *parseResponse(char pBuffer[])
+{
+
+}
+
+char *buildFileLocation(char startingDirectory[], char requestedFile[])
+{
+    char *fileLocation = strcat(startingDirectory, requestedFile);
+    return fileLocation;
 }
