@@ -96,12 +96,12 @@ int main(int argc, char *argv[])
         memset(pBuffer, 0, sizeof(pBuffer));
         int bytesRead = read(hSocket, pBuffer, BUFFER_SIZE);
         printf("got from browser %d\n%s\n", bytesRead, pBuffer);
-        char requestedFile[NAME_SIZE];
-        if (strstr(pBuffer, "GET"))
-        {
-            sscanf(pBuffer, "GET %s", requestedFile);
-        }
-        strcat(filePath, requestedFile);
+//        char requestedFile[NAME_SIZE];
+//        if (strstr(pBuffer, "GET"))
+//        {
+//            sscanf(pBuffer, "GET %s", requestedFile);
+//        }
+//        strcat(filePath, requestedFile);
         /* analyse given directory */
 
         struct stat fileStat;
