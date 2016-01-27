@@ -6,4 +6,4 @@ server: server.cpp
 sigint: sigint.cpp
 	g++ -o sigint sigint.cpp
 jpg: jpg.cpp
-    g++ -o jpg jpg.cpp
+	g++ -o jpg jpg.cpp
