@@ -6,12 +6,13 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "CS360Utils.h"
+#include <sys/stat.h>
+#include <dirent.h>
 
 #define SOCKET_ERROR        -1
 #define BUFFER_SIZE         1000
 #define QUEUE_SIZE          5
-#define DIRECTORY_NAME_SIZE 255
+#define NAME_SIZE 255
 
 int main(int argc, char *argv[])
 {
@@ -21,20 +22,22 @@ int main(int argc, char *argv[])
     int nAddressSize = sizeof(struct sockaddr_in);
     char pBuffer[BUFFER_SIZE];
     int nHostPort;
-    char directory[DIRECTORY_NAME_SIZE];
+    char startingDirectory[NAME_SIZE];
+    char filePath[NAME_SIZE];
 
     if (argc < 3)
     {
-        printf("\nUsage: server host-port directory\n");
+        printf("\nUsage: server host-port startingDirectory\n");
         return 0;
     }
     else
     {
         nHostPort = atoi(argv[1]);
-        strcpy(directory, argv[2]);
+        strcpy(startingDirectory, argv[2]);
+        strcpy(filePath, startingDirectory);
     }
 
-    printf("\nStarting server on port %d in directory %s", nHostPort, directory);
+    printf("\nStarting server on port %d in startingDirectory %s", nHostPort, startingDirectory);
 
     printf("\nMaking socket");
     /* make a socket */
@@ -70,7 +73,6 @@ int main(int argc, char *argv[])
               sin_port          = %d\n", Address.sin_family, (int) Address.sin_addr.s_addr, ntohs(Address.sin_port)
     );
 
-
     printf("\nMaking a listen queue of %d elements", QUEUE_SIZE);
     /* establish listen queue */
     if (listen(hServerSocket, QUEUE_SIZE) == SOCKET_ERROR)
@@ -91,15 +93,59 @@ int main(int argc, char *argv[])
         memset(pBuffer, 0, sizeof(pBuffer));
         int bytesRead = read(hSocket, pBuffer, BUFFER_SIZE);
         printf("got from browser %d\n%s\n", bytesRead, pBuffer);
+        char requestedFile[NAME_SIZE];
+        if (strstr(pBuffer, "GET"))
+        {
+            sscanf(pBuffer, "GET %s", requestedFile);
+        }
+        strcat(filePath, requestedFile);
+        /* analyse given directory */
+        /*
+        struct stat fileStat;
+        if (stat(filePath, &fileStat) == -1)
+        {
+            printf("ERROR with file: %s\n", filePath);
+            memset(pBuffer, 0, sizeof(pBuffer));
+            sprintf(pBuffer, "HTTP/1.1 404 Not Found\r\n\r\n<html>\""
+                    "<h1>404 Not Found</h1>\""
+                    "The page '%s' could not be found on this server.\n</html>", filePath);
+        }
+        if (S_ISREG(fileStat.st_mode))
+        {
+            printf("%s is a regular file \n", filePath);
+            printf("Filed size: %s\n", fileStat.st_size);
+            FILE *file = fopen(filePath, "r");
+            char *fileBuffer = (char *) malloc(fileStat.st_size);
+            fread(fileBuffer, fileStat.st_size, 1, file);
+            printf("Writing to socket: \n\n%s", fileBuffer);
+            //write to socket instead of printf (sprintf)
+            memset(pBuffer, 0, sizeof(pBuffer));
+            sprintf(pBuffer, "HTTP/1.1 200 OK\r\n"
+                    "Content-Type: text/html\r\n\r\n", fileBuffer);
+            write(hSocket,)
+            free(fileBuffer);
+            fclose(file);
+        }
+        if (S_ISDIR(fileStat.st_mode))
+        {
+            printf("%s is a directory \n", filePath);
+            DIR *dirp;
+            struct dirent *dp;
 
-        sprintf(pBuffer, "HTTP/1.1 200 OK\r\n\
-Content-Type: text/html\
-\n\r\n\r\n\
-<html>\
-<ul>\
-<li> <a>file.html</a></li>\
-</ul>\
-Hello</html>\n");
+            dirp = opendir(".");
+            while ((dp = readdir(dirp)) != NULL)
+                printf("name %s\n", dp->d_name);
+            (void) closedir(dirp);
+        }
+         */
+        sprintf(pBuffer, "HTTP/1.1 200 OK\r\n"
+                "Content-Type: text/html\n\r\n\r\n"
+                "<html>"
+                "<ul>"
+                "<li> <a>file.html</a></li>"
+                "</ul>"
+                "Hello"
+                "</html>\n");
         write(hSocket, pBuffer, strlen(pBuffer));
         linger lin;
         unsigned int y = sizeof(lin);
@@ -115,15 +161,4 @@ Hello</html>\n");
             return 0;
         }
     }
-}
-
-char *parseResponse(char pBuffer[])
-{
-
-}
-
-char *buildFileLocation(char startingDirectory[], char requestedFile[])
-{
-    char *fileLocation = strcat(startingDirectory, requestedFile);
-    return fileLocation;
 }
