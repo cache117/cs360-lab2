@@ -117,10 +117,10 @@ int main(int argc, char *argv[])
         if (S_ISREG(fileStat.st_mode))
         {
             printf("%s is a regular file \n", filePath);
-            printf("File size: %s\n", fileStat.st_size);
+            printf("File size: %d\n", (int) fileStat.st_size);
             FILE *file = fopen(filePath, "r");
-            char *fileBuffer = (char *) malloc(fileStat.st_size);
-            fread(fileBuffer, fileStat.st_size, 1, file);
+            char *fileBuffer = (char *) malloc((size_t) fileStat.st_size);
+            fread(fileBuffer, (size_t) fileStat.st_size, 1, file);
             printf("Writing to socket: \n\n%s", fileBuffer);
             /* Reset buffer */
             memset(pBuffer, 0, sizeof(pBuffer));
