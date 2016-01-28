@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
         char requestedFile[NAME_SIZE];
         sscanf(pBuffer, "GET %s HTTP/1.1", requestedFile);
         strcat(filePath, requestedFile);
-        printf("Requested file: %s", requestedFile);
+        printf("Requested file: %s\n", requestedFile);
 
         /* analyse given directory */
         struct stat fileStat;
@@ -157,8 +157,6 @@ int main(int argc, char *argv[])
                 sprintf(fileListing, "%s\n<li><a href=\"%s\"%s</a></li>", fileListing, dp->d_name, dp->d_name);
             }
             strcat(fileListing, "</html>");
-            char* responseHeaders;
-            sprintf(responseHeaders, "%s\r\n%s%s\r\n\r\n",HTTP_OK,CONTENT_TYPE, contentType);
             sprintf(pBuffer, "%s\r\n%s%s\r\n\r\n%s",HTTP_OK,CONTENT_TYPE, contentType, fileListing);
             (void) closedir(dirp);
         }
