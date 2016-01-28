@@ -152,8 +152,7 @@ int main(int argc, char *argv[])
             printf("%s is a directory \n", filePath);
             DIR *dirp;
             struct dirent *dp;
-            char *directoryListing;
-            memset(directoryListing, 0, strlen(directoryListing));
+            char *directoryListing = (char *) malloc(BUFFER_SIZE);
             dirp = opendir(filePath);
             sprintf(directoryListing, "<html><h1>File listing:</h1><ul>");
             while ((dp = readdir(dirp)) != NULL)
