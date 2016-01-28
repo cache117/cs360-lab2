@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
                 sprintf(fileListing, "%s\n<li><a href=\"%s\"%s</a></li>", fileListing, dp->d_name, dp->d_name);
             }
             strcat(fileListing, "</html>");
-            sprintf(pBuffer, "%s\r\nContent-Type: %s\r\n\r\n%s","HTTP/1.1 200 OK", contentType, fileListing);
+            sprintf(pBuffer, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n\r\n%s", contentType, fileListing);
             (void) closedir(dirp);
         }
 
