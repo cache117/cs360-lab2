@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
             fread(fileBuffer, (size_t) fileStat.st_size, 1, file);
             printf("Writing to socket: \n\n%s", fileBuffer);
             // Reset buffer
-            free(pBuffer);
+            memset(pBuffer, 0, sizeof(pBuffer));
 
             sprintf(pBuffer, "HTTP/1.1 200 OK\r\n");
             if (strstr(filePath, ".html"))
