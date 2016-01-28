@@ -15,8 +15,6 @@
 #define QUEUE_SIZE          5
 #define NAME_SIZE           255
 #define CONTENT_TYPE_SIZE   10
-#define HTTP_OK             "HTTP/1.1 200 OK"
-#define CONTENT_TYPE        "Content-Type:"
 
 int main(int argc, char *argv[])
 {
@@ -111,9 +109,9 @@ int main(int argc, char *argv[])
         {
             printf("ERROR with file: %s\n", filePath);
             memset(pBuffer, 0, sizeof(pBuffer));
-            sprintf(pBuffer, "HTTP/1.1 404 Not Found\r\n%s text/html\r\n\r\n<html>\""
-                    "<h1>404 Not Found</h1>\""
-                    "The page '%s' could not be found on this server.\n</html>", CONTENT_TYPE, filePath);
+            sprintf(pBuffer, "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n<html>"
+                    "<h1>404 Not Found</h1>"
+                    "The page '%s' could not be found on this server.\n</html>", filePath);
         }
         else if (S_ISREG(fileStat.st_mode))
         {
@@ -127,16 +125,23 @@ int main(int argc, char *argv[])
             memset(pBuffer, 0, sizeof(pBuffer));
             char *fileExtension = strrchr(filePath, '.');
             if (fileExtension == "html")
+            {
                 strcpy(contentType, "text/html");
+            }
             else if (fileExtension == "gif")
+            {
                 strcpy(contentType, "image/gif");
+            }
             else if (fileExtension == "jpg")
+            {
                 strcpy(contentType, "image/jpg");
+            }
             else
+            {
                 strcpy(contentType, "text/plain");
-            printf("%s%s", CONTENT_TYPE, contentType);
-            sprintf(pBuffer, "%s\r\n%s%s\r\n\r\n%s", HTTP_OK, CONTENT_TYPE, contentType, fileBuffer);
-            write(hSocket, pBuffer, strlen(pBuffer));
+            }
+            printf("Content-Type: %s", contentType);
+            sprintf(pBuffer, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n\r\n%s", contentType, fileBuffer);
 
             // Free memory, close files
             free(fileBuffer);
@@ -147,30 +152,24 @@ int main(int argc, char *argv[])
             printf("%s is a directory \n", filePath);
             DIR *dirp;
             struct dirent *dp;
-            char *fileListing;
-            memset(fileListing, 0, strlen(fileListing));
-            strcpy(contentType, "text/html");
+            char *directoryListing;
+            memset(directoryListing, 0, strlen(directoryListing));
             dirp = opendir(filePath);
-            sprintf(fileListing, "<html><h1>File listing:</h1>");
+            sprintf(directoryListing, "<html><h1>File listing:</h1><ul>");
             while ((dp = readdir(dirp)) != NULL)
             {
-                sprintf(fileListing, "%s\n<li><a href=\"%s\"%s</a></li>", fileListing, dp->d_name, dp->d_name);
+                sprintf(directoryListing, "%s\n<li><a href=\"%s\"%s</a></li>", directoryListing, dp->d_name,
+                        dp->d_name);
             }
-            strcat(fileListing, "</html>");
-            sprintf(pBuffer, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n\r\n%s", contentType, fileListing);
+            strcat(directoryListing, "</ul></html>");
+            strcpy(contentType, "text/html");
+            memset(pBuffer, 0, sizeof(pBuffer));
+            sprintf(pBuffer, "HTTP/1.1 200 OK\r\nContent-Type: test/html\r\n\r\n%s", directoryListing);
+
+            // Free memory, close directory
+            free(directoryListing);
             (void) closedir(dirp);
         }
-
-/*
-        sprintf(pBuffer, "HTTP/1.1 200 OK\r\n"
-                "Content-Type: text/html\n\r\n\r\n"
-                "<html>"
-                "<ul>"
-                "<li> <a>file.html</a></li>"
-                "</ul>"
-                "Hello"
-                "</html>\n");
-                */
         write(hSocket, pBuffer, strlen(pBuffer));
         linger lin;
         unsigned int y = sizeof(lin);
