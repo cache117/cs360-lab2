@@ -161,9 +161,8 @@ int main(int argc, char *argv[])
                         dp->d_name);
             }
             strcat(directoryListing, "</ul></html>");
-            strcpy(contentType, "text/html");
             memset(pBuffer, 0, sizeof(pBuffer));
-            sprintf(pBuffer, "HTTP/1.1 200 OK\r\nContent-Type: test/html\r\n\r\n%s", directoryListing);
+            sprintf(pBuffer, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n%s", directoryListing);
 
             // Free memory, close directory
             free(directoryListing);
