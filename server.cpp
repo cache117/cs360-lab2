@@ -101,6 +101,7 @@ int main(int argc, char *argv[])
         sscanf(pBuffer, "GET %s HTTP/1.1", requestedFile);
         strcat(filePath, requestedFile);
         printf("Requested file: %s\n", requestedFile);
+        memset(requestedFile, 0, strlen(requestedFile));
 
         /* analyse given directory */
         struct stat fileStat;
@@ -123,22 +124,35 @@ int main(int argc, char *argv[])
             printf("Writing to socket: \n\n%s", fileBuffer);
             // Reset buffer
             memset(pBuffer, 0, sizeof(pBuffer));
-            char *fileExtension = strrchr(filePath, '.');
-            if (fileExtension == "html")
+
+            sprintf(pBuffer, "HTTP/1.1 200 OK\r\n");
+            if (strstr(filePath, ".html"))
             {
                 strcpy(contentType, "text/html");
+                sprintf(pBuffer, "%sContent-Type:%s\r\n\r\n", pBuffer, contentType);
             }
-            else if (fileExtension == "gif")
+            else if (strstr(filePath, ".gif"))
             {
                 strcpy(contentType, "image/gif");
+                sprintf(pBuffer, "%sAccept-Ranges: bytes\r\n", pBuffer);
+                sprintf(pBuffer, "%sContent-length: %d\r\n", pBuffer, (int) fileStat.st_size);
+                sprintf(pBuffer, "%sContent-Type: %s", pBuffer, contentType);
             }
-            else if (fileExtension == "jpg")
+            else if (strstr(filePath, ".jpg"))
             {
                 strcpy(contentType, "image/jpg");
+                sprintf(pBuffer, "%sAccept-Ranges: bytes\r\n", pBuffer);
+                sprintf(pBuffer, "%sKeep-Alive: timeout=2, max=100\r\n", pBuffer);
+                sprintf(pBuffer, "%sContent-length: %d\r\n", pBuffer, (int) fileStat.st_size);
+                sprintf(pBuffer, "%sConnection: keep-alive", pBuffer);
+                sprintf(pBuffer, "%sContent-Type: %s\r\n", pBuffer, contentType);
             }
             else
             {
                 strcpy(contentType, "text/plain");
+                sprintf(pBuffer, "%sAccept-Ranges: bytes\r\n", pBuffer);
+                sprintf(pBuffer, "%sContent-length:%d\r\n", pBuffer, (int) fileStat.st_size);
+                sprintf(pBuffer, "%sContent-Type: %s", pBuffer, contentType);
             }
             printf("Content-Type: %s", contentType);
             sprintf(pBuffer, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n\r\n%s", contentType, fileBuffer);
