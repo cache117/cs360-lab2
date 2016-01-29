@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
     {
         nHostPort = atoi(argv[1]);
         strcpy(startingDirectory, argv[2]);
+        memset(filePath, 0, sizeof(filePath));
         strcpy(filePath, startingDirectory);
     }
 
