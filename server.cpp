@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
             }
             printf("Content-Type: %s", contentType);
             char *preBody;
-            asprintf(&preBody, "HTTP/1.1 200 OK\r\n%s\r\n\r\n", contentType, headers);
+            asprintf(&preBody, "HTTP/1.1 200 OK\r\n%s\r\n\r\n", headers);
             write(hSocket, preBody, strlen(preBody));
             write(hSocket, fileBuffer, sizeof(fileBuffer));
             // Free memory, close files
