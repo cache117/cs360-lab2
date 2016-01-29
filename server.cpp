@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
         /* analyse given directory */
         struct stat fileStat;
         char contentType[CONTENT_TYPE_SIZE];
-        if (stat(filePath, &fileStat) == -1)
+        if (stat(filePath, &fileStat))
         {
             printf("ERROR with file: %s\n", filePath);
             memset(pBuffer, 0, sizeof(pBuffer));
@@ -192,8 +192,8 @@ int main(int argc, char *argv[])
         {
             printf("ERROR with file: %s\n", filePath);
             memset(pBuffer, 0, sizeof(pBuffer));
-            sprintf(pBuffer, "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n<html>"
-                    "<h1>404 Not Found</h1>"
+            sprintf(pBuffer, "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\n\r\n<html>"
+                    "<h1>400 Bad request</h1>"
                     "The page '%s' could not be found on this server.\n</html>", filePath);
         }
 
