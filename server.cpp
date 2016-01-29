@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
             if (strstr(filePath, ".html"))
             {
                 strcpy(contentType, "text/html");
-                asprintf(&headers, "%sContent-Type:%s\r\n\r\n", pBuffer, contentType);
+                asprintf(&headers, "%sContent-Type:%s", pBuffer, contentType);
             }
             else if (strstr(filePath, ".gif"))
             {
@@ -146,8 +146,8 @@ int main(int argc, char *argv[])
                 asprintf(&headers, "%sAccept-Ranges: bytes\r\n", pBuffer);
                 asprintf(&headers, "%sKeep-Alive: timeout=2, max=100\r\n", pBuffer);
                 asprintf(&headers, "%sContent-length: %d\r\n", pBuffer, (int) fileStat.st_size);
-                asprintf(&headers, "%sConnection: keep-alive", pBuffer);
-                asprintf(&headers, "%sContent-Type: %s\r\n", pBuffer, contentType);
+                asprintf(&headers, "%sConnection: keep-alive\r\n", pBuffer);
+                asprintf(&headers, "%sContent-Type: %s", pBuffer, contentType);
             }
             else
             {
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
             asprintf(&directoryListing, "<html><h1>File listing:</h1><ul>");
             while ((dp = readdir(dirp)) != NULL)
             {
-                asprintf(&directoryListing, "%s\n<li><a href=\"%s\"%s</a></li>", directoryListing, dp->d_name,
+                asprintf(&directoryListing, "%s\n<li><a href=\"%s\">%s</a></li>", directoryListing, dp->d_name,
                         dp->d_name);
             }
             asprintf(&directoryListing, "%s</ul></html>", directoryListing);
