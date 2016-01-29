@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
             char *fileBuffer = (char *) malloc((size_t) fileStat.st_size);
             char *headers;
             fread(fileBuffer, (size_t) fileStat.st_size, 1, file);
-            printf("Writing to socket: \n\n%s", fileBuffer);
+
 
             sprintf(pBuffer, "HTTP/1.1 200 OK\r\n");
             if (strstr(filePath, ".html"))
@@ -158,7 +158,8 @@ int main(int argc, char *argv[])
             char *preBody;
             asprintf(&preBody, "HTTP/1.1 200 OK\r\n%s\r\n\r\n", headers);
             write(hSocket, preBody, strlen(preBody));
-            write(hSocket, fileBuffer, sizeof(fileBuffer));
+            printf("Writing to socket: \n\n%s", fileBuffer);
+            write(hSocket, fileBuffer, strlen(fileBuffer));
             // Free memory, close files
             free(fileBuffer);
             fclose(file);
