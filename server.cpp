@@ -122,40 +122,38 @@ int main(int argc, char *argv[])
             char *fileBuffer = (char *) malloc((size_t) fileStat.st_size);
             fread(fileBuffer, (size_t) fileStat.st_size, 1, file);
             printf("Writing to socket: \n\n%s", fileBuffer);
-            // Reset buffer
-            memset(pBuffer, 0, sizeof(pBuffer));
 
             sprintf(pBuffer, "HTTP/1.1 200 OK\r\n");
             if (strstr(filePath, ".html"))
             {
                 strcpy(contentType, "text/html");
-                sprintf(pBuffer, "%sContent-Type:%s\r\n\r\n", pBuffer, contentType);
+                asprintf(pBuffer, "%sContent-Type:%s\r\n\r\n", pBuffer, contentType);
             }
             else if (strstr(filePath, ".gif"))
             {
                 strcpy(contentType, "image/gif");
-                sprintf(pBuffer, "%sAccept-Ranges: bytes\r\n", pBuffer);
-                sprintf(pBuffer, "%sContent-length: %d\r\n", pBuffer, (int) fileStat.st_size);
-                sprintf(pBuffer, "%sContent-Type: %s", pBuffer, contentType);
+                asprintf(pBuffer, "%sAccept-Ranges: bytes\r\n", pBuffer);
+                asprintf(pBuffer, "%sContent-length: %d\r\n", pBuffer, (int) fileStat.st_size);
+                asprintf(pBuffer, "%sContent-Type: %s", pBuffer, contentType);
             }
             else if (strstr(filePath, ".jpg"))
             {
                 strcpy(contentType, "image/jpg");
-                sprintf(pBuffer, "%sAccept-Ranges: bytes\r\n", pBuffer);
-                sprintf(pBuffer, "%sKeep-Alive: timeout=2, max=100\r\n", pBuffer);
-                sprintf(pBuffer, "%sContent-length: %d\r\n", pBuffer, (int) fileStat.st_size);
-                sprintf(pBuffer, "%sConnection: keep-alive", pBuffer);
-                sprintf(pBuffer, "%sContent-Type: %s\r\n", pBuffer, contentType);
+                asprintf(pBuffer, "%sAccept-Ranges: bytes\r\n", pBuffer);
+                asprintf(pBuffer, "%sKeep-Alive: timeout=2, max=100\r\n", pBuffer);
+                asprintf(pBuffer, "%sContent-length: %d\r\n", pBuffer, (int) fileStat.st_size);
+                asprintf(pBuffer, "%sConnection: keep-alive", pBuffer);
+                asprintf(pBuffer, "%sContent-Type: %s\r\n", pBuffer, contentType);
             }
             else
             {
                 strcpy(contentType, "text/plain");
-                sprintf(pBuffer, "%sAccept-Ranges: bytes\r\n", pBuffer);
-                sprintf(pBuffer, "%sContent-length:%d\r\n", pBuffer, (int) fileStat.st_size);
-                sprintf(pBuffer, "%sContent-Type: %s", pBuffer, contentType);
+                asprintf(pBuffer, "%sAccept-Ranges: bytes\r\n", pBuffer);
+                asprintf(pBuffer, "%sContent-length:%d\r\n", pBuffer, (int) fileStat.st_size);
+                asprintf(pBuffer, "%sContent-Type: %s", pBuffer, contentType);
             }
             printf("Content-Type: %s", contentType);
-            sprintf(pBuffer, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n\r\n%s", contentType, fileBuffer);
+            asprintf(pBuffer, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n\r\n%s", contentType, fileBuffer);
 
             // Free memory, close files
             free(fileBuffer);
@@ -168,21 +166,22 @@ int main(int argc, char *argv[])
             struct dirent *dp;
             char *directoryListing = (char *) malloc(BUFFER_SIZE);
             dirp = opendir(filePath);
-            sprintf(directoryListing, "<html><h1>File listing:</h1><ul>");
+            asprintf(directoryListing, "<html><h1>File listing:</h1><ul>");
             while ((dp = readdir(dirp)) != NULL)
             {
-                sprintf(directoryListing, "%s\n<li><a href=\"%s\"%s</a></li>", directoryListing, dp->d_name,
+                asprintf(directoryListing, "%s\n<li><a href=\"%s\"%s</a></li>", directoryListing, dp->d_name,
                         dp->d_name);
             }
             strcat(directoryListing, "</ul></html>");
             memset(pBuffer, 0, sizeof(pBuffer));
-            sprintf(pBuffer, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n%s", directoryListing);
+            asprintf(pBuffer, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n%s", directoryListing);
 
             // Free memory, close directory
             free(directoryListing);
             (void) closedir(dirp);
         }
         write(hSocket, pBuffer, strlen(pBuffer));
+        free(pBuffer);
         linger lin;
         unsigned int y = sizeof(lin);
         lin.l_onoff = 1;
