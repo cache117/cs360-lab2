@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
             sprintf(pBuffer, "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n<html>"
                     "<h1>404 Not Found</h1>"
                     "The page '%s' could not be found on this server.\n</html>", filePath);
+            write(hSocket, pBuffer, strlen(pBuffer));
         }
         else if (S_ISREG(fileStat.st_mode))
         {
