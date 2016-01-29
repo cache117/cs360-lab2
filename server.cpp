@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
             }
             printf("Content-Type: %s", contentType);
             char *preBody;
-            asprintf(&preBody, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n%s\r\n\r\n", contentType);
+            asprintf(&preBody, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n%s\r\n\r\n", contentType, headers);
             write(hSocket, preBody, strlen(preBody));
             write(hSocket, fileBuffer, sizeof(fileBuffer));
             // Free memory, close files
@@ -193,7 +193,6 @@ int main(int argc, char *argv[])
                     "The page '%s' could not be found on this server.\n</html>", filePath);
         }
 
-        free(pBuffer);
         linger lin;
         unsigned int y = sizeof(lin);
         lin.l_onoff = 1;
