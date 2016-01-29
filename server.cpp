@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
         printf("Got from browser %d\n%s\n", bytesRead, pBuffer);
         char requestedFile[NAME_SIZE];
         sscanf(pBuffer, "GET %s HTTP/1.1", requestedFile);
+        memset(filePath, 0, sizeof(filePath));
         strcat(filePath, requestedFile);
         printf("Requested file: %s\n", requestedFile);
         memset(requestedFile, 0, strlen(requestedFile));
